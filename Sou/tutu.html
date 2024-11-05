@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Background Music Example</title>
+  <style>
+    /* Hide the audio element visually but keep it playing */
+    #background-music {
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
@@ -12,23 +18,32 @@
 
   <!-- Background Music -->
   <audio id="background-music" loop>
-    <source src="thp.mp3" type="audio/mpeg">
+    <source src="music.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
   <script>
-    // Check if autoplay is allowed in the browser
-    window.addEventListener('load', function() {
-      const audio = document.getElementById('background-music');
+    document.addEventListener("DOMContentLoaded", function() {
+      const audio = document.getElementById("background-music");
+
+      // Try to play the audio automatically on page load
       audio.play().catch((error) => {
-        // Autoplay blocked, display play button as fallback
-        console.log('Autoplay was prevented:', error);
-        let playButton = document.createElement('button');
-        playButton.innerText = "Play Music";
-        playButton.onclick = function() {
-          audio.play();
+        console.log("Autoplay prevented, waiting for user interaction.");
+
+        // Retry playback on any user interaction
+        const tryPlay = () => {
+          audio.play().then(() => {
+            console.log("Playback started after interaction.");
+            document.removeEventListener("click", tryPlay);
+            document.removeEventListener("scroll", tryPlay);
+          }).catch((error) => {
+            console.log("Playback still blocked:", error);
+          });
         };
-        document.body.appendChild(playButton);
+
+        // Listen for interactions to retry playback
+        document.addEventListener("click", tryPlay);
+        document.addEventListener("scroll", tryPlay);
       });
     });
   </script>
